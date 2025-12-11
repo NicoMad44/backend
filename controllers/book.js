@@ -38,7 +38,6 @@ exports.getBestBooks = (req, res, next) => {
     .catch(error => res.status(500).json({ error }));
 }
 
-
 exports.updateBook = (req, res, next) => {
     const bookObject = req.file ? {
         ...JSON.parse(req.body.book),
@@ -76,10 +75,6 @@ exports.deleteBook = (req, res, next) => {
         }
     })
     .catch(error => res.status(500).json({error}))
-
-   /*  Book.deleteOne({ _id: req.params.id })
-      .then(() => res.status(200).json({ message: 'Livre supprimé !'}))
-      .catch(error => res.status(400).json({ error })); */
 }
 
 exports.rateBook = async (req, res, next) => {
@@ -115,40 +110,3 @@ exports.rateBook = async (req, res, next) => {
       return res.status(500).json({ error });
     }
   };
-  
-
-
-/* exports.rateBook =  (req, res, next) => {
-    Book.findOne({
-        _id: req.params.id,
-        'ratings.userId': req.auth.userId  // Cherche dans le tableau ratings
-      })
-      .then(ratedBook => {
-        if (ratedBook) {
-            return res.status(400).json({message: "Livre deja note par cet utilisateur"})
-        } else {
-            Book.updateOne(
-                {_id: req.params.id},
-                { $push: { ratings: { userId: req.auth.userId , grade: req.body.rating } } }
-            )
-            .then(()=>{
-                Book.findOne({_id: req.params.id})
-                .then((book)=>{
-                    const grades = book.ratings.map(r => r.grade);
-                    const averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
-                    const averageRatingRounded = averageRating.toFixed(1) // c'est pour que la moyenne soit arroundi a la premiere decimale
-                    Book.updateOne(
-                        {_id: req.params.id},
-                        {...book, averageRating: averageRatingRounded}
-                    )
-                    .then((book)=>res.status(200).json(book))
-                    .catch(error => res.status(400).json({ error }));
-                })
-                .catch(error => res.status(400).json({ error }));
-            })
-            .catch(error=> res.status(400).json({error}));
-        }
-      })
-      .catch(error=> res.status(400).json({error}));
-} */
-
