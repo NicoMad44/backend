@@ -88,7 +88,7 @@ exports.deleteBook = (req, res, next) => {
 exports.rateBook =  (req, res, next) => {
     Book.findOne({
         _id: req.params.id,
-        "ratings.userId": req.auth.userId  // Cherche dans le tableau ratings
+        'ratings.userId': req.auth.userId  // Cherche dans le tableau ratings
       })
       .then(ratedBook => {
         if (ratedBook) {
@@ -98,22 +98,43 @@ exports.rateBook =  (req, res, next) => {
                 {_id: req.params.id},
                 { $push: { ratings: { userId: req.auth.userId , grade: req.body.rating } } }
             )
-            .then((book)=> {
-                    res.status(200).json({book})
-                    console.log('hahhahDisney')
+            .then(()=>{
+                Book.findOne({_id: req.params.id})
+                .then((book)=>{
+                    const grades = book.ratings.map(r => r.grade);
+                    const averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
+                    const averageRatingRounded = averageRating.toFixed(1) // c'est pour que la moyenne soit arroundi a la premiere decimale
+                    Book.updateOne(
+                        {_id: req.params.id},
+                        {...book, averageRating: averageRatingRounded}
+                    )
+                    .then((book)=>res.status(200).json(book))
+                    .catch(error => res.status(400).json({ error }));
                 })
+                .catch(error => res.status(400).json({ error }));
+            })
+            /* .then((book)=> {
+                    const grades = book.ratings.map(r => r.grade);
+                    book.averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
+                    book.save()
+                    .then(()=> {
+                        res.status(200).json(book);
+                        console.log('average rating updated');
+                        console.log(book.averageRating);
+                    })
+                    .catch(error => res.status(400).json({ error }));
+                }) */
             .catch(error=> res.status(400).json({error}));
-           Book.find()
+/*            Book.find()
                 .then((books) => {
                     books.map(async book=>{
                         const grades = book.ratings.map(r => r.grade).filter(Boolean);
                         book.averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
-                        console.log(book)
                         await book.save()
                     })
+                    console.log("average rating updated")
                 })
-                .catch(error => res.status(400).json({ error }));
-
+                .catch(error => res.status(400).json({ error })); */
         }
       })
       .catch(error=> res.status(400).json({error}));
