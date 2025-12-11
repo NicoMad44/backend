@@ -49,7 +49,7 @@ exports.updateBook = (req, res, next) => {
     Book.findOne({_id: req.params.id})
         .then((book) => {
             if (book.userId != req.auth.userId) {
-                res.status(401).json({ message : 'Not authorized'});
+                res.status(403).json({ message : 'unauthorized request x'});
             } else {
                 Book.updateOne({ _id: req.params.id}, { ...bookObject, _id: req.params.id})
                 .then(() => res.status(200).json({message : 'Objet modifié!'}))
@@ -77,15 +77,48 @@ exports.deleteBook = (req, res, next) => {
     })
     .catch(error => res.status(500).json({error}))
 
-
-
-
-    Book.deleteOne({ _id: req.params.id })
+   /*  Book.deleteOne({ _id: req.params.id })
       .then(() => res.status(200).json({ message: 'Livre supprimé !'}))
-      .catch(error => res.status(400).json({ error }));
+      .catch(error => res.status(400).json({ error })); */
 }
 
-exports.rateBook =  (req, res, next) => {
+exports.rateBook = async (req, res, next) => {
+    try {
+      const book = await Book.findById(req.params.id);
+      if (!book) {
+        return res.status(404).json({ message: 'Livre non trouvé' });
+      }
+  
+      const alreadyRated = book.ratings.some(
+        (r) => r.userId.toString() === req.auth.userId
+      );
+      if (alreadyRated) {
+        return res.status(400).json({ message: 'Livre déjà noté par cet utilisateur' });
+      }
+  
+      // add the new rating
+      book.ratings.push({ userId: req.auth.userId, grade: req.body.rating });
+  
+      // average calculation
+      const grades = book.ratings.map((r) => r.grade);
+      const average =
+        grades.length > 0
+          ? grades.reduce((a, b) => a + b, 0) / grades.length
+          : 0;
+  
+      // conversion in number of a rounded average
+      book.averageRating = Math.round(average * 10) / 10;
+  
+      const updatedBook = await book.save();
+      return res.status(200).json(updatedBook);
+    } catch (error) {
+      return res.status(500).json({ error });
+    }
+  };
+  
+
+
+/* exports.rateBook =  (req, res, next) => {
     Book.findOne({
         _id: req.params.id,
         'ratings.userId': req.auth.userId  // Cherche dans le tableau ratings
@@ -113,30 +146,9 @@ exports.rateBook =  (req, res, next) => {
                 })
                 .catch(error => res.status(400).json({ error }));
             })
-            /* .then((book)=> {
-                    const grades = book.ratings.map(r => r.grade);
-                    book.averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
-                    book.save()
-                    .then(()=> {
-                        res.status(200).json(book);
-                        console.log('average rating updated');
-                        console.log(book.averageRating);
-                    })
-                    .catch(error => res.status(400).json({ error }));
-                }) */
             .catch(error=> res.status(400).json({error}));
-/*            Book.find()
-                .then((books) => {
-                    books.map(async book=>{
-                        const grades = book.ratings.map(r => r.grade).filter(Boolean);
-                        book.averageRating = grades.length ? grades.reduce((a, b) => a + b, 0) / grades.length : 0;
-                        await book.save()
-                    })
-                    console.log("average rating updated")
-                })
-                .catch(error => res.status(400).json({ error })); */
         }
       })
       .catch(error=> res.status(400).json({error}));
-}
+} */
 

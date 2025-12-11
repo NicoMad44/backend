@@ -19,7 +19,7 @@ router.post('/', auth, multer, bookCtrl.createBook);
 
 router.put('/:id', auth, multer, bookCtrl.updateBook);
 
-router.delete('/:id', auth, bookCtrl.deleteBook);
+router.delete('/:id', auth , bookCtrl.deleteBook);
 
 
 
