@@ -7,7 +7,7 @@ exports.createBook = (req, res, next) => {
     delete bookObject._userId;
     delete bookObject.averageRating; // a zero pour le premier livres - Initialise la note moyenne du livre à 0
     const book = new Book({
-        ...bookObject,
+        ...bookObject, 
         userId: req.auth.userId,
         averageRating: 0,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
