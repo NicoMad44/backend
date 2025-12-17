@@ -3,7 +3,7 @@ const { body, validationResult } = require('express-validator');
 module.exports = {
   loginValidator : [
     body('email')
-      .notEmpty().withMessage('Email requis') // note: le front devra etre adapter pour afficher les bons messages d'erreure
+      .notEmpty().withMessage('Email requis') // note: le front devra etre adapte pour afficher les bons messages
       .isEmail().withMessage('Format email invalide')
       .normalizeEmail(),
     body('password')
