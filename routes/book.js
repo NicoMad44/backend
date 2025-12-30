@@ -20,7 +20,7 @@ router.post('/', auth, multer, optimizeImage, bookCtrl.createBook);
 
 router.put('/:id', auth, multer, optimizeImage, bookCtrl.updateBook);
 
-router.delete('/:id', auth , bookCtrl.deleteBook);
+router.delete('/:id', auth, bookCtrl.deleteBook);
 
 
 module.exports = router;
