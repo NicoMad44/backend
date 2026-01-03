@@ -5,10 +5,20 @@ const mongoose = require('mongoose');
 const path = require('path');
 const bookRoutes = require('./routes/book');
 const userRoutes = require('./routes/user');
+const cors = require('cors');
+
+const allowedOrigins = ['https://nicomad44.github.io'];
 
 mongoose.connect('mongodb+srv://nicolasmadier_db_user:RFkYOlKZJdDbFufS@cluster0.ufu3rkl.mongodb.net/?appName=Cluster0')
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
+
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
